@@ -2,7 +2,7 @@
 title: "K-means Clustering"
 author: "Muhammad Apriandito"
 date: "5/21/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -24,9 +24,9 @@ factoextra -> Clustering algorithms & visualization
 
 ```{r}
 # Panggil library yang diperlukan
-library(____)
-library(____)
-library(____)
+library(tidyverse) 
+library(cluster)
+library(factoextra)
 ```
 
 ## Data Preparation 
@@ -42,10 +42,10 @@ Dalam praktek kali ini kita akan menggunakan dataset bawaan R yaitu "USArrests".
 df <- USArrests
 
 #Melihat Dimensi Data dim()
-___(df)
+dim(df)
 
 #Melihat 10 Baris Pertama mnggunakan fungsi head
-head(____)
+head(df, 10)
 
 ```
 
@@ -56,7 +56,7 @@ sum(is.na(df))
 
 Dapat dilihat bahwa tidak ada data kosong didalam dataset tersebut, sehingga tidak perlu adanya langkah lebih lanjut terkait data kosong.
 
-
+catatan : menormalisasi skala data untuk membuat data dapat di distribusikan
 Selanjutnya, untuk membuat semua feature dalam dataset memliki skala yang sama (0-1) kita perlu melalukan standarisasi / penyetaraan skala. Standarisasi dapat dilakukan menggunkan fungsi "scale()". 
 
 ```{r}
@@ -68,7 +68,7 @@ Mari kita cek data kita, setelah dilakukan normalisasi:
 
 ```{r}
 #Melihat 10 data teratas pada dataset yang telah dinormalisasi
-_____(dfnorm, 10)
+head(dfnorm, 10)
 ```
 
 ## Clustering Distance Measures
@@ -83,10 +83,10 @@ Keterangan Fungsi:
 
 ```{r}
 #Menhitung Ditance Matrix menggunakan fungsi get_distance()
-distance <- _____(dfnorm, method = "euclidean" )
+distance <- get_dist(dfnorm, method = "euclidean" )
 
 #Memvisualisasikan Distance Matrix menggunakan fungsi fviz_dist()
-______(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
 ```
 
 
@@ -97,7 +97,7 @@ Fungsi kmeans juga memiliki opsi nstart yang mencoba beberapa konfigurasi awal d
 
 ```{r}
 #Membuat Model K-Means Klustering dengan Jumlah K/Centers =2, nstart = 25, dengan nama K2
-k2 <- kmeans(dfnorm, centers = _, nstart = __)
+k2 <- kmeans(dfnorm, centers = 2, nstart = 25)
 str(k2)
 ```
 
@@ -123,7 +123,7 @@ kita juga dapat melihat hasil dengan menggunakan "fviz_cluster". Ini memberikan 
 
 ```{r}
 # visualisasi kluster menggunakan fungsi fviz_cluster()
-_______(k2, data = dfnorm)
+fviz_cluster(k2, data = dfnorm)
 ```
 
 Sebagai alternatif, kita dapat menggunakan scatter plots untuk menggambarkan kelompok dibandingkan dengan variabel asli.
@@ -145,23 +145,23 @@ Karena jumlah cluster (k) harus ditetapkan sebelum kita memulai algoritma, serin
 ```{r}
 #Membuat Untuk kluster dengan masing-masing K =3.4.5
 k3 <- kmeans(dfnorm, centers = 3, nstart = 25)
-k4 <- _____
-k5 <- _____
+k4 <- kmeans(dfnorm, centers = 4, nstart = 25)
+k5 <- kmeans(dfnorm, centers = 5, nstart = 25)
 
 # Membuat Komparasi Plot
 p1 <- fviz_cluster(k2, geom = "point", data = dfnorm) + ggtitle("k = 2")
-p2 <- ____
-p3 <- ____
-p4 <- ____
+p2 <- fviz_cluster(k3, geom = "point", data = dfnorm) + ggtitle("k = 3")
+p3 <- fviz_cluster(k4, geom = "point", data = dfnorm) + ggtitle("k = 4")
+p4 <- fviz_cluster(k5, geom = "point", data = dfnorm) + ggtitle("k = 5")
 
 #install packages gridExtra
-library(_____) 
+library(gridExtra) 
 grid.arrange(p1, p2, p3, p4, nrow = 2)
 
 ```
 
 ##Determining Optimal Clusters
-Untuk membantu analis, berikut ini merupakan dua metode yang populer untuk menentukan nilai Optimal CLuter:
+Untuk membantu analis, berikut ini merupakan dua metode yang populer untuk menentukan nilai Optimal CLuster:
 1. Elbow method
 2. Silhouette method
 
@@ -193,7 +193,7 @@ Kita dengan cepat dapat menghitung Elbow Method menggunakan fungsi fviz_nbclust(
 
 ```{r}
 #Visualisasi Elbow Method menggunakan fungsi fviz_nbclust()
-______(dfnorm, kmeans, method = "wss")
+fviz_nbclust(dfnorm, kmeans, method = "wss")
 ```
 
 
@@ -226,7 +226,7 @@ Kita dengan cepat dapat menghitung Average Silhouette dalam satu fungsi fviz_nbc
 
 ```{r}
 #Visualisasi Average Silhoutte menggunakan fugsi fviz_nbclust()
-______(dfnorm, kmeans, method = "silhouette")
+fviz_nbclust(dfnorm, kmeans, method = "silhouette")
 ```
 
 
@@ -243,7 +243,7 @@ print(final)
 kita dapat memvisualisasikan hasil menggunakan (fviz_cluster)
 ```{r}
 # Visualisasi Final Cluster
-_______
+fviz_cluster(final, geom = "point", data = dfnorm) + ggtitle("k = 4")
 ```
 
 Dan kita dapat mengekstrak cluster dan menambah data awal kita untuk melakukan beberapa statistik deskriptif di tingkat cluster
